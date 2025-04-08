@@ -1,17 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import "./App.css";
-import { api_uploadFiles } from "./apis/index";
+import { api_uploadFiles, api_uploadGetStatus } from "./apis/index";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [taskId, setTaskId] = useState("");
+  const [pollingStatus, setPollingStatus] = useState("");
+  const [intervalStatus, setIntervalStatus] = useState<number>();
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    var files = event.target.files;
+    const files = event.target.files;
 
-    var result = await api_uploadFiles(files);
-    console.log("result", result);
+    const { task_id } = await api_uploadFiles(files);
+    console.log("task_id", task_id);
+
+    setTaskId(task_id);
+    setPollingStatus("start")
   };
+
+  const pollStatus = async (taskId: string) => {
+    const result = await api_uploadGetStatus(taskId);
+    console.log("result", result);
+    setTaskId("");
+    setPollingStatus("done");
+  };
+
+  useEffect(() => {
+    
+    if (taskId) {
+      const interval = setInterval(() => pollStatus(taskId), 2000);
+      setIntervalStatus(interval);
+    }
+
+    if(pollingStatus == "done"){
+      clearInterval(intervalStatus)
+    }
+
+    return () => clearInterval(intervalStatus);
+  }, [taskId]);
 
   return (
     <>
