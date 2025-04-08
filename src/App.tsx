@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import "./App.css";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import { api_uploadFiles, api_uploadGetStatus } from "./apis/index";
 
 function App() {
@@ -10,6 +11,8 @@ function App() {
   const [pollingStatus, setPollingStatus] = useState("");
   const [intervalStatus, setIntervalStatus] = useState<number>();
   const [open, setOpen] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -21,6 +24,10 @@ function App() {
     setPollingStatus("start");
   };
 
+  const handleToastClose = () => {
+    setToastOpen(false);
+  };
+
   const pollStatus = async (taskId: string) => {
     const { isSuccess } = await api_uploadGetStatus(taskId);
     console.log("isSuccess", isSuccess);
@@ -28,6 +35,8 @@ function App() {
     if (isSuccess) {
       setTaskId("");
       setPollingStatus("done");
+      setToastOpen(true);
+      setToastMessage("Success");
     }
   };
 
@@ -57,7 +66,12 @@ function App() {
           tabIndex={-1}
         >
           Upload files
-          <input hidden={true} type="file" onChange={upload} multiple />
+          <input
+            hidden={true}
+            type="file"
+            onChange={upload}
+            accept="image/jpeg, image/png, application/pdf"
+          />
         </Button>
       </div>
       <Backdrop
@@ -66,6 +80,12 @@ function App() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={2000}
+        onClose={handleToastClose}
+        message={toastMessage}
+      />
     </>
   );
 }
