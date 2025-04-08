@@ -9,12 +9,17 @@ const handlers = [
     });
   }),
 
-  http.get(`${baseUrl}/status/c7b3d8e0-5e0b-4b0f-8b3a-3b9f4b3d3b3d`, async ({ request }) => {
-    await delay(1000);
+  http.get(`${baseUrl}/status/:taskId`, async function* () {
+    let counter = 0;
+    await delay();
 
-    return HttpResponse.json({
-      isSuccess: true,
-    });
+    while (counter < 2) {
+      counter++;
+      yield HttpResponse.json({ isSuccess: false });
+    }
+
+    counter++;
+    return HttpResponse.json({ isSuccess: true });
   }),
 ];
 

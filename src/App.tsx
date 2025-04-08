@@ -15,25 +15,27 @@ function App() {
     console.log("task_id", task_id);
 
     setTaskId(task_id);
-    setPollingStatus("start")
+    setPollingStatus("start");
   };
 
   const pollStatus = async (taskId: string) => {
-    const result = await api_uploadGetStatus(taskId);
-    console.log("result", result);
-    setTaskId("");
-    setPollingStatus("done");
+    const { isSuccess } = await api_uploadGetStatus(taskId);
+    console.log("isSuccess", isSuccess);
+
+    if (isSuccess) {
+      setTaskId("");
+      setPollingStatus("done");
+    }
   };
 
   useEffect(() => {
-    
     if (taskId) {
       const interval = setInterval(() => pollStatus(taskId), 2000);
       setIntervalStatus(interval);
     }
 
-    if(pollingStatus == "done"){
-      clearInterval(intervalStatus)
+    if (pollingStatus == "done") {
+      clearInterval(intervalStatus);
     }
 
     return () => clearInterval(intervalStatus);
