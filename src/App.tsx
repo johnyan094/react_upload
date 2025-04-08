@@ -15,9 +15,15 @@ function App() {
   const [toastMessage, setToastMessage] = useState("");
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const file = event.target.files?.item(0);
 
-    const { task_id } = await api_uploadFiles(files);
+    if (file!.size > 20000000) {
+      setToastOpen(true);
+      setToastMessage("file must less than 2MB");
+      return
+    }
+
+    const { task_id } = await api_uploadFiles(file);
     console.log("task_id", task_id);
 
     setTaskId(task_id);
