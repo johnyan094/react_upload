@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import "./App.css";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 import { api_uploadFiles, api_uploadGetStatus } from "./apis/index";
 
 function App() {
   const [taskId, setTaskId] = useState("");
   const [pollingStatus, setPollingStatus] = useState("");
   const [intervalStatus, setIntervalStatus] = useState<number>();
+  const [open, setOpen] = useState(false);
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -30,11 +33,13 @@ function App() {
 
   useEffect(() => {
     if (taskId) {
+      setOpen(true);
       const interval = setInterval(() => pollStatus(taskId), 2000);
       setIntervalStatus(interval);
     }
 
     if (pollingStatus == "done") {
+      setOpen(false);
       clearInterval(intervalStatus);
     }
 
@@ -55,6 +60,12 @@ function App() {
           <input hidden={true} type="file" onChange={upload} multiple />
         </Button>
       </div>
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={open}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }
