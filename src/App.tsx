@@ -20,7 +20,7 @@ function App() {
     if (file!.size > 20000000) {
       setToastOpen(true);
       setToastMessage("file must less than 2MB");
-      return
+      return;
     }
 
     const { task_id } = await api_uploadFiles(file);
@@ -32,6 +32,12 @@ function App() {
 
   const handleToastClose = () => {
     setToastOpen(false);
+  };
+
+  const handleCancelPolling = () => {
+    setPollingStatus("done");
+    setToastOpen(true)
+    setToastMessage("Polling has been canceled");
   };
 
   const pollStatus = async (taskId: string) => {
@@ -47,7 +53,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (taskId) {
+    if (taskId && pollingStatus == "start") {
       setOpen(true);
       const interval = setInterval(() => pollStatus(taskId), 2000);
       setIntervalStatus(interval);
@@ -59,7 +65,7 @@ function App() {
     }
 
     return () => clearInterval(intervalStatus);
-  }, [taskId]);
+  }, [taskId, pollingStatus]);
 
   return (
     <>
@@ -83,6 +89,7 @@ function App() {
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}
+        onClick={handleCancelPolling}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
